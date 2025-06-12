@@ -45,6 +45,7 @@ public class PlayerController : MonoBehaviour
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
 
+
         if (isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
@@ -64,6 +65,11 @@ public class PlayerController : MonoBehaviour
         right.Normalize();
 
         Vector3 move = (right * x + forward * z).normalized;
+        bool isMoving = move.magnitude > 0.1f;
+        bool isSprinting = Input.GetKey(KeyCode.LeftShift) && isMoving && !isCrouching;
+
+        float currentSpeed = isSprinting ? sprintSpeed : (isCrouching ? crouchSpeed : speed);
+        controller.Move(move * currentSpeed * Time.deltaTime);
 
         // Attack
         if (Input.GetMouseButtonDown(0) && isGrounded && !isCrouching)
@@ -77,7 +83,6 @@ public class PlayerController : MonoBehaviour
         }
 
         // Sprint
-        float currentSpeed = speed;
         if (Input.GetKey(KeyCode.LeftShift) && !isCrouching)
         {
             mAnimator.SetBool("Sprint", true);
@@ -94,14 +99,16 @@ public class PlayerController : MonoBehaviour
         }
 
 
-        if (move.magnitude > 0.1f)
+        // Rotation
+        if (isMoving)
         {
             Quaternion toRotation = Quaternion.LookRotation(move, Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
         }
 
-        float movementMagnitude = new Vector3(x, 0, z).magnitude;
-        mAnimator.SetFloat("Speed", movementMagnitude, 0.05f, Time.deltaTime);
+        // Animation
+        mAnimator.SetFloat("Speed", new Vector3(x, 0, z).magnitude, 0.05f, Time.deltaTime);
+        mAnimator.SetBool("IsSprinting", isSprinting);
 
         // Jump
         if (Input.GetButtonDown("Jump") && isGrounded && !isCrouching)
@@ -148,17 +155,17 @@ public class PlayerController : MonoBehaviour
         isAttacking = true;
         mAnimator.SetTrigger("Attack");
 
-        yield return new WaitForSeconds(0.2f); // timing avant que le coup touche
+        yield return new WaitForSeconds(0.2f); 
 
         // Simulation du coup (raycast ou overlap)
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayers);
         foreach (Collider enemy in hitEnemies)
         {
             Debug.Log("Touché : " + enemy.name);
-            // enemy.GetComponent<EnemyHealth>().TakeDamage(attackDamage); // à adapter
+            // enemy.GetComponent<EnemyHealth>().TakeDamage(attackDamage); 
         }
 
-        yield return new WaitForSeconds(0.5f); // temps de blocage total
+        yield return new WaitForSeconds(0.5f); 
         isAttacking = false;
     }
 
