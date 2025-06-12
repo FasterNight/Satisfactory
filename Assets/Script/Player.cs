@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
     public float standingHeight = 2f;
     public float crouchSpeed = 3f;
 
+    public Transform cameraTransform; 
+
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
@@ -21,13 +23,12 @@ public class PlayerController : MonoBehaviour
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
 
-
     private Animator mAnimator;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        mAnimator = GetComponent<Animator>();
+        mAnimator = GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -35,22 +36,44 @@ public class PlayerController : MonoBehaviour
         // Ground check
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
-        if (isGrounded && velocity.y < 0)
-            velocity.y = -2f;
 
-        // Movement input
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+            mAnimator.SetBool("IsGround", true);
+        }
+
+        // Inputs
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
-        Vector3 move = transform.right * x + transform.forward * z;
+        // Direction relative à la caméra
+        Vector3 forward = cameraTransform.forward;
+        Vector3 right = cameraTransform.right;
+
+        forward.y = 0f;
+        right.y = 0f;
+
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 move = (right * x + forward * z).normalized;
+
         controller.Move(move * speed * Time.deltaTime);
 
+        if (move.magnitude > 0.1f)
+        {
+            Quaternion toRotation = Quaternion.LookRotation(move, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
+        }
+
         float movementMagnitude = new Vector3(x, 0, z).magnitude;
-        mAnimator.SetFloat("Speed", movementMagnitude);
+        mAnimator.SetFloat("Speed", movementMagnitude, 0.05f, Time.deltaTime);
 
         // Jump
         if (Input.GetButtonDown("Jump") && isGrounded && !isCrouching)
         {
+            mAnimator.SetBool("IsGround", false);
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
 
