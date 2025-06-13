@@ -34,7 +34,6 @@ public class CamFollow : MonoBehaviour
         rotationY -= mouseY;
         rotationY = Mathf.Clamp(rotationY, yMinLimit, yMaxLimit);
 
-        // Seulement en 1ère personne, la rotation de la caméra s’applique au joueur
         if (isFirstPerson)
         {
             target.rotation = Quaternion.Euler(0f, rotationX, 0f);
@@ -53,7 +52,7 @@ public class CamFollow : MonoBehaviour
         }
         else
         {
-            // 3ème personne : la caméra est indépendante
+            // 3ème personne
             Quaternion camRotation = Quaternion.Euler(rotationY, rotationX, 0f);
             Vector3 camOffset = camRotation * new Vector3(0, 0, -thirdPersonDistance);
             Vector3 desiredPosition = target.position + Vector3.up * height + camOffset;

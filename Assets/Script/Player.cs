@@ -155,19 +155,36 @@ public class PlayerController : MonoBehaviour
         isAttacking = true;
         mAnimator.SetTrigger("Attack");
 
-        yield return new WaitForSeconds(0.2f); 
+        yield return new WaitForSeconds(0.2f);
 
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayers);
         foreach (Collider enemy in hitEnemies)
         {
             Debug.Log("Touché : " + enemy.name);
-            // enemy.GetComponent<EnemyHealth>().TakeDamage(attackDamage); 
+            Ennemie enemyHealth = enemy.GetComponent<Ennemie>();
+            if (enemyHealth != null)
+            {
+                enemyHealth.TakeDamage(attackDamage);
+            }
         }
 
-        yield return new WaitForSeconds(0.5f); 
+        yield return new WaitForSeconds(0.5f);
         isAttacking = false;
     }
 
+    /// <summary>
+    /// 
+    ///  Test des raycast
+    /// 
+    /// </summary>
+    void OnDrawGizmosSelected()
+    {
+        if (attackPoint == null)
+            return;
+
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+    }
     void EndAttack()
     {
         Debug.Log("Fin de l'attaque");
