@@ -157,7 +157,6 @@ public class PlayerController : MonoBehaviour
 
         yield return new WaitForSeconds(0.2f); 
 
-        // Simulation du coup (raycast ou overlap)
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayers);
         foreach (Collider enemy in hitEnemies)
         {
