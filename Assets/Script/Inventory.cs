@@ -1,26 +1,18 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class Inventory : MonoBehaviour
 {
-    public List<Item> items = new List<Item>();
-    public int capacity = 20;
-
-    public bool Add(Item item)
+    // Start is called before the first frame update
+    void Start()
     {
-        if (items.Count >= capacity)
-        {
-            Debug.Log("Inventory full");
-            return false;
-        }
-
-        items.Add(item);
-        return true;
+        
     }
 
-    public void Remove(Item item)
+    // Update is called once per frame
+    void Update()
     {
-        items.Remove(item);
+        
     }
 }

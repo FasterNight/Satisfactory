@@ -14,7 +14,7 @@ public class CamFollow : MonoBehaviour
     float rotationY = 0.0f;
     [SerializeField] float yMinLimit = -20f;
     [SerializeField] float yMaxLimit = 80f;
-
+    
     private bool isFirstPerson = false;
 
     private void Update()
